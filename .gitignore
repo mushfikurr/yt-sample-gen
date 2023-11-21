@@ -1,0 +1,5 @@
+backend/wavs
+node_modules/
+.vite/
+.vscode/
+.env
