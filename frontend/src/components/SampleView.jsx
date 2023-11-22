@@ -2,14 +2,23 @@ import { Loader2 } from "lucide-react";
 import * as React from "react";
 import { useQuery } from "react-query";
 import { generateSamples } from "../requests";
+import { useStore } from "../store";
+import { cn } from "../utils";
 
 export function SampleView(props) {
   const query = useQuery(["samples"], () => generateSamples(), {
     enabled: false,
   });
+  const setHasGeneratedSamplesOnce = useStore(
+    (state) => state.setHasGeneratedSamplesOnce
+  );
 
   if (query.isLoading || query.isFetching) {
     return <LoadingSampleView />;
+  }
+
+  if (query.isSuccess) {
+    setHasGeneratedSamplesOnce(true);
   }
 
   return (
@@ -19,7 +28,9 @@ export function SampleView(props) {
           return <Sample />;
         })
       ) : (
-        <EmptySampleView />
+        <>
+          <Sample />
+        </>
       )}
     </div>
   );
@@ -46,10 +57,32 @@ export function LoadingSampleView() {
   );
 }
 
-function Sample() {
+function Sample(props) {
+  const setCurrentSample = useStore((state) => state.setCurrentSample);
+  const currentSample = useStore((state) => state.currentSample);
+  const sample = props.sample ?? "youtubeId"; // remove placeholder value youtubeId
+  const isPressed = sample === currentSample;
+
+  const handleClick = () => {
+    if (isPressed) {
+      setCurrentSample("");
+    } else {
+      setCurrentSample(sample ?? "youtubeId");
+    }
+  };
+
   return (
-    <div className="inline-flex text-zinc-400 text-sm font-medium leading-4 whitespace-nowrap justify-center items-center bg-zinc-900 grow p-16 px-5 rounded-md">
-      youtubeId
-    </div>
+    <button
+      onClick={handleClick}
+      className={cn(
+        "border border-zinc-900 inline-flex text-zinc-400 transition-all duration-200 ease-in-out text-sm font-medium leading-4 whitespace-nowrap justify-center items-center bg-zinc-900 grow p-16 px-5 rounded-md",
+        {
+          "text-indigo-300 drop-shadow-glow border border-indigo-300 border-opacity-100":
+            isPressed,
+        }
+      )}
+    >
+      {sample}
+    </button>
   );
 }

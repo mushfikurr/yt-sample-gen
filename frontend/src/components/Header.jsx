@@ -1,15 +1,20 @@
-import { RefreshCcw } from "lucide-react";
+import { RefreshCcw, Search } from "lucide-react";
 import { useStore } from "../store";
 import { TextButton } from "./TextButton";
 import { useQueryClient } from "react-query";
+import * as Dialog from "@radix-ui/react-dialog";
+import { WordsModal } from "./WordsModal";
 
 export function Header(props) {
   const looping = useStore((state) => state.looping);
   const toggleLooping = useStore((state) => state.toggleLooping);
+  const hasGeneratedSampleOnce = useStore(
+    (state) => state.hasGeneratedSampleOnce
+  );
   const queryClient = useQueryClient();
 
   return (
-    <div className="items-stretch bg-zinc-950 flex w-full flex-col p-8 max-md:max-w-full max-md:px-5">
+    <div className="items-stretch bg-zinc-950 flex w-full flex-col p-8 max-md:max-w-full max-md:px-5 sticky top-0">
       <div className="justify-between items-stretch flex gap-5 max-md:max-w-full max-md:flex-wrap">
         <div className="items-stretch flex grow basis-[0%] flex-col">
           <div className="text-indigo-300 text-4xl font-semibold leading-10 whitespace-nowrap">
@@ -35,26 +40,27 @@ export function Header(props) {
       <div className="items-stretch flex w-full justify-between gap-5 mt-2.5 max-md:max-w-full max-md:flex-wrap">
         <div className="flex items-stretch justify-between gap-5 max-md:max-w-full max-md:flex-wrap">
           <div className="items-stretch flex justify-between gap-5 py-2 max-md:justify-center">
-            <TextButton
-              title={looping ? "loop on" : "loop off"}
-              Icon={RefreshCcw}
-              pressed={looping}
-              onClick={() => {
-                toggleLooping();
-              }}
-            />
+            <Dialog.Root>
+              <Dialog.Trigger asChild>
+                <TextButton
+                  title={looping ? "loop on" : "loop off"}
+                  Icon={RefreshCcw}
+                  pressed={looping}
+                  onClick={() => {
+                    toggleLooping();
+                  }}
+                />
+              </Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Overlay />
+                <Dialog.Content>
+                  <WordsModal />
+                </Dialog.Content>
+              </Dialog.Portal>
+            </Dialog.Root>
           </div>
           <div className="items-stretch flex justify-between gap-5 py-2">
-            <div className="items-stretch flex justify-between gap-2">
-              <img
-                loading="lazy"
-                src="https://cdn.builder.io/api/v1/image/assets/TEMP/b043d764-d7a1-4918-acb9-faa972a6d186?apiKey=3558a84a4f3942fcb082385cb40cd5e5&"
-                className="aspect-square object-contain object-center w-6 overflow-hidden shrink-0 max-w-full"
-              />
-              <div className="text-zinc-400 text-base font-medium leading-4 self-center grow whitespace-nowrap my-auto">
-                search terms
-              </div>
-            </div>
+            <TextButton title="search terms" Icon={Search} />
             <div className="items-stretch flex justify-between gap-2">
               <img
                 loading="lazy"
@@ -84,7 +90,7 @@ export function Header(props) {
         }}
         className="text-zinc-200 hover:text-zinc-100 text-sm font-medium leading-6 whitespace-nowrap inline-flex justify-center items-center bg-zinc-900 hover:bg-zinc-900/70 mt-8 px-5 py-5 rounded-md transition-colors duration-150 ease-in-out active:bg-zinc-900/90"
       >
-        regenerate
+        {hasGeneratedSampleOnce ? "regenerate" : "generate"}
       </button>
     </div>
   );
