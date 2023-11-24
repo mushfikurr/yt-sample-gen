@@ -5,6 +5,7 @@ import { cn } from "../utils";
 import { SearchTermsDialog } from "./SearchTermsDialog";
 import { TextButton } from "./TextButton";
 import { VolumeSlider } from "./VolumeSlider";
+import { Howler } from "howler";
 
 export function Header(props) {
   const looping = useStore((state) => state.looping);
@@ -62,6 +63,7 @@ export function Header(props) {
       <button
         onClick={() => {
           if (!isLoading || !isRefetching) {
+            Howler.unload();
             refetch();
           }
         }}

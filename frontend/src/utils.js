@@ -2,11 +2,13 @@ import { twMerge as twMergeOriginal } from "tailwind-merge";
 import clsx from "clsx";
 import { useEffect, useRef } from "react";
 import { useStore } from "./store";
+import { Howl, Howler } from "howler";
 
 export function cn(...args) {
   return twMergeOriginal(clsx(args));
 }
 
+// TODO: Create instances of Howler objects in own Sample components.
 export const useAudioEndpoint = () => {
   const audioInstance = useRef();
   const looping = useStore((state) => state.looping);
@@ -24,31 +26,47 @@ export const useAudioEndpoint = () => {
   };
 
   useEffect(() => {
-    if (!audioInstance.current) {
-      audioInstance.current = new Audio();
+    // Run on page load when a sample is first played
+    if (!audioInstance.current && currentSample) {
+      const AUDIO_ENDPOINT = getAudioEndpoint();
+      audioInstance.current = new Howl({
+        src: [AUDIO_ENDPOINT],
+        loop: true,
+      });
     }
 
+    // Run when a user selects another sample
     if (currentSample && audioInstance.current) {
       const AUDIO_ENDPOINT = getAudioEndpoint();
-      audioInstance.current.pause();
-      audioInstance.current.src = AUDIO_ENDPOINT;
+      Howler.stop();
+      audioInstance.current.unload();
+      audioInstance.current = new Howl({
+        src: [AUDIO_ENDPOINT],
+        loop: true,
+      });
+      audioInstance.current.src = [AUDIO_ENDPOINT];
+
       audioInstance.current.play();
-      audioInstance.current.volume = volume;
-      audioInstance.current.loop = looping;
+      Howler.volume(volume);
+      audioInstance.current.loop(looping);
+      console.log(audioInstance.current);
 
-      const handleEnd = () => setCurrentSample("");
+      const handleEnd = () => {
+        if (!looping) setCurrentSample("");
+      };
 
-      audioInstance.current.addEventListener("ended", () => handleEnd());
-      audioInstance.current.addEventListener("error", () => handleEnd());
+      audioInstance.current.on("end", () => handleEnd());
+      audioInstance.current.on("loaderror", () => handleEnd());
 
       return () => {
-        audioInstance.current.removeEventListener("ended", () => handleEnd());
-        audioInstance.current.removeEventListener("error", () => handleEnd());
+        audioInstance.current.off("end", () => handleEnd());
+        audioInstance.current.off("loaderror", () => handleEnd());
       };
     }
 
+    // Run when user stops playing a sample (or the end of the sample)
     if (!currentSample && audioInstance.current) {
-      audioInstance.current.pause();
+      audioInstance.current.stop();
     }
 
     return () => {
@@ -56,10 +74,22 @@ export const useAudioEndpoint = () => {
     };
   }, [currentSample]);
 
+  // Run when any settings change
   useEffect(() => {
     if (audioInstance.current) {
-      audioInstance.current.loop = looping;
-      audioInstance.current.volume = volume;
+      audioInstance.current.loop(looping);
+      Howler.volume(volume);
     }
   }, [looping, volume]);
+
+  // Run when the loop setting is changed mid-way through looping playback
+  useEffect(() => {
+    if (audioInstance.current?.playing() && !looping) {
+      audioInstance.current?.on("end", () => setCurrentSample(""));
+    }
+
+    return () => {
+      audioInstance.current?.off("end", () => setCurrentSample(""));
+    };
+  }, [looping]);
 };

@@ -1,8 +1,8 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import { TextButton } from "./TextButton";
-import { Cross, CrossIcon, Search, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "../utils";
+import { TextButton } from "./TextButton";
 
 export function SearchTermsDialog() {
   const [isOpen, setIsOpen] = useState(false);
