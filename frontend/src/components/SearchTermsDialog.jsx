@@ -1,11 +1,19 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { Search, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "../utils";
 import { TextButton } from "./TextButton";
+import { useStore } from "../store";
 
 export function SearchTermsDialog() {
+  const words = useStore((state) => state.words);
+  const setWords = useStore((state) => state.setWords);
+
   const [isOpen, setIsOpen] = useState(false);
+  const [wordsInput, setWordsInput] = useState(words.join(""));
+
+  const formatWords = () => words.join("\n");
+
   return (
     <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
       <Dialog.Trigger asChild>
@@ -41,7 +49,9 @@ export function SearchTermsDialog() {
               <textarea
                 id="words"
                 type="text"
-                placeholder="bird&#10;noise&#10;sample&#10;wind&#10;ambience&#10;sound"
+                placeholder="bird&#10;noise&#10;sample&#10;wind&#10;ambience&#10;sound&#10;(a longer list provides more unique sample combinations)"
+                onChange={(e) => setWordsInput(e.target.value)}
+                defaultValue={formatWords()}
                 className={cn(
                   "mt-3 w-full h-64 rounded-md px-3 py-2.5 transition-colors duration-200 ease-in-out",
                   "text-sm text-zinc-300 placeholder:text-zinc-500",
@@ -60,6 +70,9 @@ export function SearchTermsDialog() {
                 //     isLoading,
                 // }
               )}
+              onClick={() => {
+                setWords(wordsInput.split("\n"));
+              }}
             >
               Save
             </Dialog.Close>

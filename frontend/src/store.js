@@ -6,6 +6,9 @@ export const useStore = create((set) => ({
   volume: [0.5],
   setVolume: (newVolume) => set(() => ({ volume: newVolume })),
 
+  words: [],
+  setWords: (newWords) => set(() => ({ words: newWords })),
+
   currentSample: "",
   setCurrentSample: (newSample) => set(() => ({ currentSample: newSample })),
 }));

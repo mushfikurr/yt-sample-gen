@@ -1,10 +1,12 @@
 import os
+import traceback
 import uuid
 
-from flask import Flask, Response, jsonify, request, stream_with_context, send_from_directory
-from werkzeug.utils import safe_join
+from flask import (Flask, Response, jsonify, request, send_from_directory,
+                   stream_with_context)
 from flask_cors import CORS
-from generate_files import init
+from generate_files import init, init_random_files
+from werkzeug.utils import safe_join
 
 
 def create_app(test_config=None):
@@ -44,15 +46,26 @@ def create_app(test_config=None):
         content = request.get_json()
         print(request.headers['Content-Type'])
 
-        if content['uniqueId'] is None:
-            return "UniqueId was not provided", 400
+        if content['uniqueId'] is None or content['uniqueId'] == "default":
+            return "UniqueId was not provided or incorrect", 400
 
         unique_id = content['uniqueId']
-        processed_files = init(unique_id)
+        words_list = content['words']
+
+        processed_files = init(unique_id, words_list)
         if len(processed_files) != 0:
             return {"processed_files": processed_files}, 200
         else:
             return {"message": "Error processing files"}, 500
+        
+    @app.route('/generate-random', methods=["GET"])
+    def generate_random():
+        try:
+            processed_files = init_random_files()
+            return {"processed_files": processed_files}, 200
+        except Exception:
+            print(traceback.format_exc())
+            return {"message": "internal server error"}, 500
 
     @app.route('/loops/<unique_id>/<filename>')
     def send_loop(unique_id, filename):

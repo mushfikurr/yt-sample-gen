@@ -15,9 +15,11 @@ export const useAudioEndpoint = () => {
   const volume = useStore((state) => state.volume);
   const currentSample = useStore((state) => state.currentSample);
   const setCurrentSample = useStore((state) => state.setCurrentSample);
+  const words = useStore((state) => state.words);
 
   const getAudioEndpoint = () => {
-    const uniqueId = localStorage.getItem("uniqueId");
+    const uniqueId =
+      words.length > 0 ? localStorage.getItem("uniqueId") : "default";
     if (looping) {
       return `http://localhost:5000/loops/${uniqueId}/${currentSample}`;
     } else {

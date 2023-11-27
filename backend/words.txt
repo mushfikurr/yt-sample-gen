@@ -1,7 +1,404 @@
-drum
-break
-amen
-loop
-sample
-garage
-future
+Acoustic Guitar
+Bassoon
+Celesta
+Didgeridoo
+Electric Bass
+Flugelhorn
+Glockenspiel
+Hammered Dulcimer
+Irish Bouzouki
+Jazz Drum Kit
+Kazoo
+Lap Steel Guitar
+Marimba
+Nyckelharpa
+Pad
+Ambient
+Foley
+Nature
+Ocarina
+Piccolo
+Quadrangularis Reversum
+Recorder
+Sitar
+Tambura
+Udu Drum
+Viola da Gamba
+Washboard
+Xylophone
+Yodelayheehoo
+Zither
+Appalachian Dulcimer
+Banjo
+Clavichord
+Daf Drum
+Euphonium
+Fiddle
+Glass Harmonica
+Harmonium
+Irish Whistle
+Jaw Harp
+Koto
+Lute
+Mandolin
+Nose Flute
+Oud
+Pungi
+Quena
+Resonator Guitar
+Shruti Box
+Talking Drum
+Ukulele
+Vibraslap
+Wood Block
+Xaphoon
+Yangqin
+Zampogna
+Accordion
+Bagpipes
+Cello
+Djembe
+Erhu
+Fife
+Gong
+Harpsichord
+Irish Bodhran
+Jingle Bells
+Kalimba
+Lira
+Mandocello
+Nose Whistle
+Ocean Drum
+Pan Flute
+Quanun
+Rainstick
+Soprano Saxophone
+Theremin
+Upright Bass
+Vuvuzela
+Whamola
+Xun
+Yamaha Disklavier
+Zugtrompete
+Appalachian Washboard
+Balalaika
+Cajón
+Darbuka
+Ektara
+Frame Drum
+Glass Armonica
+Handpan
+Irish Concertina
+Jawbone
+Kalangu
+Lap Harp
+Mbira
+Ngoni
+Ocean Harp
+Pianica
+Quattro
+Rebec
+Steel Drums
+Thumb Piano
+Uilleann Pipes
+Vihuela
+Wavedrum
+Xylorimba
+Yanggeum
+Zhongruan
+Ankle Bells
+Bongo Drums
+Cimbalom
+Dizi
+Egg Shaker
+Fretless Bass
+Glass Xylophone
+Hammered Banjo
+Irish Flute
+Janggu
+Kaval
+Lap Dulcimer
+Mandolute
+Nose Harp
+Ogham Harp
+Pandeiro
+Quivera
+Rainstick Drum
+Surbahar
+Thunder Tube
+Udu Pot
+Vibraphone
+Whistle Flute
+X-Ray Bone Flute
+Yodelpipe
+Zebra Wood Guiro
+Accordion Melodeon
+Baglama
+Chapman Stick
+Djun Djun
+Ektar
+Friction Drum
+Glass Didgeridoo
+Hang Drum
+Irish Harp
+Jawharp
+Kantele
+Laser Harp
+Mirliton
+Nose Recorder
+Oktavmandolin
+Pancake Drum
+Quadrangularis Reversum II
+Resophonic Mandolin
+Shamisen
+Thumb Harp
+Urumi
+Violin
+Whistle Jug
+Xylorimba Glockenspiel
+Yangqin Dulcimer
+Zampogna Bagpipes
+Accordion Concertina
+Balalaika Mandolin
+Cajón Flamenco
+Darbuka Djembe
+Electric Sitar
+Fretless Electric Bass
+Glass Harp
+Harmonium Pump Organ
+Irish Bouzouki Banjo
+Jazz Flute
+Kalimba Thumb Piano
+Lap Slide Guitar
+Marimba Xylophone
+Nyckelharpa Violin
+Ocarina Whistle
+Pianica Melodica
+Quadrangularis Reversum III
+Resonator Banjo
+Sitar Veena
+Tambourine Drum
+Udu Talking Drum
+Vibraslap Clacker
+Wood Block Claves
+Xaphoon Pocket Sax
+Yangqin Santur
+Zither Koto
+Appalachian Dulcimer Banjo
+Baglama Saz
+Clavichord Harpsichord
+Daf Bendir
+Euphonium Tuba
+Fiddle Violin
+Glass Harmonica Armonica
+Harmonium Reed Organ
+Irish Whistle Flute
+Jaw Harp Mouth Harp
+Koto Guzheng
+Lute Mandolin
+Mandolin Banjo
+Nose Flute Recorder
+Oud Lute
+Pungi Snake Charmer
+Quena Flute
+Resonator Guitar Banjo
+Shruti Box Harmonium
+Talking Drum Bata
+Ukulele Guitar
+Vibraslap Clapper
+Wood Block Guiro
+Xylophone Glockenspiel
+Yodelayheehoo Alphorn
+Zither Guqin
+Accordion Bayan
+Bagpipes Uilleann Pipes
+Cello Viola
+Djembe Dunun
+Erhu Morin Khuur
+Fife Flute
+Gong Tam Tam
+Harpsichord Virginal
+Irish Bodhran Drum
+Jingle Bells Sleigh Bells
+Kalimba Thumb Piano
+Lira Lyre
+Mandocello Mandolin
+Nose Whistle Slide Whistle
+Ocean Drum Frame Drum
+Pan Flute Zampona
+Quanun Kanun
+Rainstick Shaker
+Soprano Saxophone Alto Saxophone
+Theremin Moog Etherwave
+Upright Bass Double Bass
+Vuvuzela Stadium Horn
+Whamola Washtub Bass
+Xun Ocarina
+Yamaha Disklavier Piano
+Zugtrompete Alpine Horn
+Appalachian Washboard Jug Band
+Balalaika Domra
+Cajón Flamenco Peruvian Box
+Darbuka Doumbek
+Ektara Gopi Yantra
+Frame Drum Bodhran
+Glass Armonica Glass Harmonica
+Handpan Hang Drum
+Irish Concertina Accordion
+Jawbone Jaw Harp
+Kalangu Slit Drum
+Lap Harp Autoharp
+Mbira Thumb Piano
+Ngoni African Harp
+Ocean Harp Waterphone
+Pianica Melodica
+Quattro Cuatro
+Rebec Medieval Fiddle
+Steel Drums Pan Drums
+Thumb Piano Kalimba
+Uilleann Pipes Irish Pipes
+Vihuela Mariachi Guitar
+Wavedrum Percussion Synthesizer
+Xylorimba Marimba
+Yanggeum Gayageum
+Zhongruan Moon Guitar
+Ankle Bells Ghungroo
+Bongo Drums Conga Drums
+Cimbalom Hammered Dulcimer
+Dizi Chinese Flute
+Egg Shaker Maraca
+Fretless Bass Upright Bass
+Glass Xylophone Glass Marimba
+Hammered Banjo Banjo
+Irish Flute Tin Whistle
+Janggu Double-Headed Drum
+Kaval Turkish Flute
+Lap Dulcimer Appalachian Dulcimer
+Mandolute Mandolin
+Nose Harp Jaw Harp
+Ogham Harp Lyre
+Pandeiro Tambourine
+Quivera Deer Toe Rattle
+Rainstick Percussion Tube
+Surbahar Bass Sitar
+Thunder Tube Spring Drum
+Udu Pot Clay Drum
+Vibraphone Metallophone
+Whistle Flute Tin Whistle
+X-Ray Bone Flute
+Yodelpipe Alphorn
+Zebra Wood Guiro
+Accordion Melodeon
+Baglama Saz
+Chapman Stick
+Djun Djun Dunun
+Ektar Gopichand
+Friction Drum Buffalo Drum
+Glass Didgeridoo
+Hang Drum Handpan
+Irish Harp Celtic Harp
+Jawharp Mouth Harp
+Kantele Finnish Zither
+Laser Harp Light Harp
+Mirliton Kazoo
+Nose Recorder Scented Flute
+Umbrella
+Radiant
+Quasar
+Mingle
+Catalyst
+Jubilant
+Nebula
+Cipher
+Zephyr
+Serendipity
+Frolic
+Nexus
+Quixotic
+Cascade
+Whimsical
+Zest
+Labyrinth
+Halcyon
+Blithe
+Vellichor
+Petrichor
+Mellifluous
+Epiphany
+Ethereal
+Nebulous
+Resplendent
+Ephemeral
+Quintessential
+Mellifluous
+Eloquent
+Quaint
+Ineffable
+Sonorous
+Diaphanous
+Mellifluous
+Ineffable
+Penumbra
+Bucolic
+Plethora
+Quintessential
+Ineffable
+Piquant
+Halcyon
+Ineffable
+Bucolic
+Ephemeral
+Vestige
+Zenith
+Mellifluous
+Enigmatic
+Quotidian
+Susurrus
+Mellifluous
+Ineffable
+Incandescent
+Epiphany
+Panacea
+Quizzical
+Nebulous
+Mellifluous
+Serendipity
+Mellifluous
+Quixotic
+Serene
+Mellifluous
+Ephemeral
+Mellifluous
+Incandescent
+Luminous
+Quagmire
+Resplendent
+Zephyr
+Mellifluous
+Ephemeral
+Nebula
+Mellifluous
+Whimsical
+Labyrinth
+Ineffable
+Zephyr
+Quotidian
+Epiphany
+Mellifluous
+Bucolic
+Ineffable
+Serendipity
+Zephyr
+Ephemeral
+Mellifluous
+Panacea
+Nebulous
+Labyrinth
+Mellifluous
+Susurrus
+Halcyon
+Ineffable
+Nebula
+Mellifluous
+Whimsical
+Jubilant

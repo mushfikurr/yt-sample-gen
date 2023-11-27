@@ -12,6 +12,7 @@ export function Header(props) {
   const toggleLooping = useStore((state) => state.toggleLooping);
   const currentSample = useStore((state) => state.currentSample);
   const { refetch, isLoading, isRefetching } = useSamples();
+  const generateLink = (id) => `https://www.youtube.com/watch?v=${id}`;
 
   return (
     <div className="items-stretch bg-zinc-950 flex w-full flex-col p-8 max-md:max-w-full max-md:px-5 sticky top-0 z-10">
@@ -22,12 +23,26 @@ export function Header(props) {
             <span className="text-indigo-300">sample gen</span>
           </h1>
           <div className="items-stretch flex gap-1 mt-2">
-            <h3 className="text-zinc-400 text-base font-medium leading-5">
-              {currentSample ? "currently playing" : "waiting for sample"}
-            </h3>
-            <p className="text-indigo-300 text-base font-medium leading-5 whitespace-nowrap">
-              {currentSample ?? ""}
-            </p>
+            {currentSample && (
+              <a
+                href={generateLink(currentSample)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-zinc-400 text-base font-medium leading-5 group"
+              >
+                <span className="group-hover:text-zinc-300 transition-colors duration-200 ease-in-out">
+                  currently playing
+                </span>{" "}
+                <span className="text-indigo-300 group-hover:text-indigo-200 transition-colors duration-200 ease-in-out">
+                  {currentSample}
+                </span>
+              </a>
+            )}
+            {!currentSample && (
+              <h3 className="text-zinc-400 text-base font-medium leading-5">
+                waiting for sample
+              </h3>
+            )}
           </div>
         </div>
         {/* <div className="text-zinc-400 text-sm leading-4 whitespace-nowrap self-start">
@@ -76,7 +91,7 @@ export function Header(props) {
           }
         )}
       >
-        {isLoading ? (
+        {isLoading || isRefetching ? (
           <span className="text-zinc-500">generating...</span>
         ) : (
           "generate"
