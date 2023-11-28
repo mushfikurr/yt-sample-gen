@@ -1,15 +1,37 @@
-import { useQuery } from "react-query";
-import { useStore } from "./store";
+import { ENDPOINT } from "./const";
 
 const JSON_HEADERS = {
   "Content-Type": "application/json",
 };
 
-async function generateSamples(words = [], withId = false) {
+const handleDownload = async (targetUrl, targetFileName) => {
+  try {
+    const response = await fetch(targetUrl);
+    if (!response.ok) {
+      throw new Error("Error downloading file", targetUrl);
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = targetFileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    const responseStatus = response.status;
+    return responseStatus;
+  } catch (error) {
+    console.error(error);
+    throw new Error(error);
+  }
+};
+
+export async function generateSamples(words = [], withId = false) {
   let response = null;
   if (withId) {
-    console.log("has words, generating with id");
-    response = await fetch("http://localhost:5000/generate", {
+    response = await fetch(ENDPOINT + "generate", {
       headers: JSON_HEADERS,
       method: "POST",
       body: JSON.stringify({
@@ -18,7 +40,7 @@ async function generateSamples(words = [], withId = false) {
       }),
     });
   } else {
-    response = await fetch("http://localhost:5000//generate-random", {
+    response = await fetch(ENDPOINT + "generate-random", {
       headers: JSON_HEADERS,
     });
   }
@@ -31,21 +53,5 @@ async function generateSamples(words = [], withId = false) {
   }
 
   const responseJson = await response.json();
-  console.log(responseJson);
   return responseJson["processed_files"];
 }
-
-export const useSamples = () => {
-  const words = useStore((state) => state.words);
-  if (words.length > 0) {
-    return useQuery(["samples"], () => generateSamples(words, true), {
-      enabled: false,
-      retry: 1,
-    });
-  } else {
-    return useQuery(["samples"], () => generateSamples(), {
-      enabled: false,
-      retry: 1,
-    });
-  }
-};

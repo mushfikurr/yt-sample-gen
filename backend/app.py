@@ -3,10 +3,14 @@ import traceback
 import uuid
 
 from flask import (Flask, Response, jsonify, request, send_from_directory,
-                   stream_with_context)
+                   stream_with_context, send_file)
 from flask_cors import CORS
 from generate_files import init, init_random_files
 from werkzeug.utils import safe_join
+import shutil
+from datetime import datetime
+from io import BytesIO
+import zipfile
 
 
 def create_app(test_config=None):
@@ -57,6 +61,7 @@ def create_app(test_config=None):
             return {"processed_files": processed_files}, 200
         else:
             return {"message": "Error processing files"}, 500
+    
         
     @app.route('/generate-random', methods=["GET"])
     def generate_random():
@@ -88,5 +93,25 @@ def create_app(test_config=None):
             return send_from_directory(path_with_id, formatted_filename)
         else:
             print("path does not exist")
+    
+    
+    @app.route('/zip/<unique_id>/<playback_type>')
+    def send_zipped_file(unique_id, playback_type):
+        directory_to_zip = os.path.join("wavs", "processed", playback_type, unique_id)
+        formatted_date_today = datetime.today().strftime('%d-%m-%Y')
 
+        zip_buffer = BytesIO()
+        # TODO: Add zipping for default directories
+
+        with shutil.ZipFile(zip_buffer, 'w') as zip_file:
+            for folder_name, subfolders, file_names in os.walk(directory_to_zip):
+                for filename in file_names:
+                    file_path = os.path.join(folder_name, filename)
+                    zip_file.write(file_path, os.path.relpath(file_path, directory_to_zip))
+
+        zip_buffer.seek(0)
+
+        return send_file(zip_buffer, download_name=f'{playback_type}-{formatted_date_today}', as_attachment=True)
+
+    
     return app

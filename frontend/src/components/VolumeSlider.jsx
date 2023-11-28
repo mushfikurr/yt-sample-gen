@@ -1,11 +1,13 @@
-import { Volume2 } from "lucide-react";
 import * as Slider from "@radix-ui/react-slider";
+import { Volume2 } from "lucide-react";
 import { cn } from "../utils";
-import { useStore } from "../store";
+import { Howler } from "howler";
+import { useState, useEffect } from "react";
 
 export function VolumeSlider() {
-  const setVolume = useStore((state) => state.setVolume);
-  const volume = useStore((state) => state.volume);
+  const [volume, setVolume] = useState([0.5]);
+
+  useEffect(() => {}, [Howler.volume()]);
 
   return (
     <div className="group inline-flex gap-2">
@@ -14,10 +16,12 @@ export function VolumeSlider() {
       <Slider.Root
         defaultValue={[0.4]}
         max={1}
+        min={0}
         step={0.1}
         className="relative flex w-32 touch-none items-center"
         onValueChange={(value) => {
           setVolume(value);
+          Howler.volume(value);
         }}
         value={volume}
       >

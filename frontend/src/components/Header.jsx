@@ -1,11 +1,12 @@
+import { Howler } from "howler";
 import { FolderArchive, Repeat2 } from "lucide-react";
-import { useSamples } from "../requests";
+import { useAudioZip } from "../hooks/useAudioZip";
+import { useSamples } from "../hooks/useSamples";
 import { useStore } from "../store";
 import { cn } from "../utils";
 import { SearchTermsDialog } from "./SearchTermsDialog";
 import { TextButton } from "./TextButton";
 import { VolumeSlider } from "./VolumeSlider";
-import { Howler } from "howler";
 
 export function Header(props) {
   const looping = useStore((state) => state.looping);
@@ -13,6 +14,7 @@ export function Header(props) {
   const currentSample = useStore((state) => state.currentSample);
   const { refetch, isLoading, isRefetching } = useSamples();
   const generateLink = (id) => `https://www.youtube.com/watch?v=${id}`;
+  // const zipAudio = useAudioZip();
 
   return (
     <div className="items-stretch bg-zinc-950 flex w-full flex-col p-8 max-md:max-w-full max-md:px-5 sticky top-0 z-10">
@@ -66,9 +68,16 @@ export function Header(props) {
           </div>
           <div className="items-stretch flex justify-between gap-5 py-2">
             <SearchTermsDialog />
-            <div className="items-stretch flex justify-between gap-2">
-              <TextButton title="download to .zip" Icon={FolderArchive} />
-            </div>
+            {/* <div className="items-stretch flex justify-between gap-2">
+              <TextButton
+                title="download to .zip"
+                Icon={FolderArchive}
+                pressed={zipAudio.isLoading}
+                onClick={() => {
+                  zipAudio.refetch();
+                }}
+              />
+            </div> */}
           </div>
         </div>
         <div className="justify-end items-stretch self-center flex gap-2 my-auto">
