@@ -1,18 +1,36 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { Search, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
+import { useStore } from "../store";
 import { cn } from "../utils";
 import { TextButton } from "./TextButton";
-import { useStore } from "../store";
 
 export function SearchTermsDialog() {
+  const ERROR_MESSAGE_INVALID =
+    "there must be at least 4 words on a seperate line";
   const words = useStore((state) => state.words);
   const setWords = useStore((state) => state.setWords);
 
   const [isOpen, setIsOpen] = useState(false);
   const [wordsInput, setWordsInput] = useState(words.join(""));
+  const [isWordsInputValid, setIsWordsInputValid] = useState(true); // true: untyped / success || false: invalid
 
-  const formatWords = () => words.join("\n");
+  const validateInput = (input) => input.split("\n")?.length > 3;
+  const handleSaveClick = (e) => {
+    if (validateInput(wordsInput)) {
+      setIsWordsInputValid(true);
+      setWords(wordsInput.split("\n"));
+    } else {
+      e.preventDefault();
+      setIsWordsInputValid(false);
+    }
+  };
+  const handleChange = (e) => {
+    if (!isWordsInputValid && validateInput(wordsInput)) {
+      setIsWordsInputValid(true);
+    }
+    setWordsInput(e.target.value);
+  };
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
@@ -50,31 +68,45 @@ export function SearchTermsDialog() {
                 id="words"
                 type="text"
                 placeholder="bird&#10;noise&#10;sample&#10;wind&#10;ambience&#10;sound&#10;(a longer list provides more unique sample combinations)"
-                onChange={(e) => setWordsInput(e.target.value)}
-                defaultValue={formatWords()}
+                onChange={(e) => handleChange(e)}
+                value={wordsInput}
                 className={cn(
                   "mt-3 w-full h-64 rounded-md px-3 py-2.5 transition-colors duration-200 ease-in-out",
                   "text-sm text-zinc-300 placeholder:text-zinc-500",
                   "border bg-zinc-900 hover:bg-zinc-900/70 active:bg-zinc-900/70 border-zinc-800",
-                  "focus:outline-none focus-visible:ring-1 focus-visible:ring-indigo-300 focus-visible:ring-opacity-75 focus-visible:bg-zinc-900/70"
+                  "focus:outline-none focus-visible:ring-1 focus-visible:ring-indigo-300 focus-visible:ring-opacity-75 focus-visible:bg-zinc-900/70",
+                  {
+                    "border border-red-400 focus-visible:ring-none":
+                      !isWordsInputValid,
+                  }
                 )}
               />
             </fieldset>
           </form>
-          <div className="mt-4 flex justify-end">
+          {!isWordsInputValid && (
+            <div className="mt-4 text-red-400 text-sm">
+              <p>{ERROR_MESSAGE_INVALID}</p>
+            </div>
+          )}
+          <div className="flex justify-end gap-4">
+            <button
+              className={cn(
+                "text-zinc-300 hover:text-zinc-200 text-sm font-medium leading-6 whitespace-nowrap inline-flex justify-center items-center bg-zinc-900 border border-zinc-800 hover:bg-zinc-900/70 active:border-zinc-700 mt-8 px-7 py-2 rounded-md transition-colors duration-200 ease-in-out active:bg-zinc-900/50"
+              )}
+              onClick={() => {
+                setWords([]);
+                setWordsInput("");
+              }}
+            >
+              clear
+            </button>
             <Dialog.Close
               className={cn(
                 "text-zinc-300 hover:text-zinc-200 text-sm font-medium leading-6 whitespace-nowrap inline-flex justify-center items-center bg-zinc-900 border border-zinc-800 hover:bg-zinc-900/70 active:border-zinc-700 mt-8 px-7 py-2 rounded-md transition-colors duration-200 ease-in-out active:bg-zinc-900/50"
-                // {
-                //   "bg-zinc-950 border-2 border-zinc-900 hover:bg-zinc-950 active:bg-zinc-950":
-                //     isLoading,
-                // }
               )}
-              onClick={() => {
-                setWords(wordsInput.split("\n"));
-              }}
+              onClick={(e) => handleSaveClick(e)}
             >
-              Save
+              save
             </Dialog.Close>
           </div>
           <Dialog.Close

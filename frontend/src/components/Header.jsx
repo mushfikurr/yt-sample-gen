@@ -14,7 +14,7 @@ export function Header(props) {
   const currentSample = useStore((state) => state.currentSample);
   const { refetch, isLoading, isRefetching } = useSamples();
   const generateLink = (id) => `https://www.youtube.com/watch?v=${id}`;
-  // const zipAudio = useAudioZip();
+  const loading = isLoading || isRefetching;
 
   return (
     <div className="items-stretch bg-zinc-950 flex w-full flex-col p-8 max-md:max-w-full max-md:px-5 sticky top-0 z-10">
@@ -47,9 +47,6 @@ export function Header(props) {
             )}
           </div>
         </div>
-        {/* <div className="text-zinc-400 text-sm leading-4 whitespace-nowrap self-start">
-          created by @mushfikurr
-        </div> */}
       </div>
       <div className="text-zinc-200 text-xl font-semibold leading-4 whitespace-nowrap mt-7 max-md:max-w-full">
         settings
@@ -68,16 +65,6 @@ export function Header(props) {
           </div>
           <div className="items-stretch flex justify-between gap-5 py-2">
             <SearchTermsDialog />
-            {/* <div className="items-stretch flex justify-between gap-2">
-              <TextButton
-                title="download to .zip"
-                Icon={FolderArchive}
-                pressed={zipAudio.isLoading}
-                onClick={() => {
-                  zipAudio.refetch();
-                }}
-              />
-            </div> */}
           </div>
         </div>
         <div className="justify-end items-stretch self-center flex gap-2 my-auto">
@@ -86,17 +73,17 @@ export function Header(props) {
       </div>
       <button
         onClick={() => {
-          if (!isLoading || !isRefetching) {
+          if (!loading) {
             Howler.unload();
             refetch();
           }
         }}
-        disabled={isLoading || isRefetching}
+        disabled={loading}
         className={cn(
           "text-zinc-300 hover:text-zinc-200 text-sm font-medium leading-6 whitespace-nowrap inline-flex justify-center items-center bg-zinc-900 border border-zinc-800 active:border-zinc-700 hover:bg-zinc-900/70 mt-8 px-7 py-5 rounded-md transition-colors duration-200 ease-in-out active:bg-zinc-900/50",
           {
             "bg-zinc-950 border border-zinc-800 hover:bg-zinc-950 active:bg-zinc-950":
-              isLoading || isRefetching,
+              loading,
           }
         )}
       >
