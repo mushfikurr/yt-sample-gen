@@ -4,15 +4,17 @@ from flask import Flask
 from flask_cors import CORS
 
 from init_celery import celery_init_app
+from config import CELERY_BROKER_URL, CELERY_RESULT_BACKEND
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(SECRET_KEY='dev')
     CORS(app);
+    # cant use .env files for celery.. use constants defined in a python file instead
     app.config.from_mapping(
         CELERY=dict(
-            broker_url="redis://:KDUu6X2KIiSsJ60zk34dGB5M6iZQqcOW@redis-12128.c1.eu-west-1-3.ec2.cloud.redislabs.com:12128/0",
-            result_backend="redis://:KDUu6X2KIiSsJ60zk34dGB5M6iZQqcOW@redis-12128.c1.eu-west-1-3.ec2.cloud.redislabs.com:12128/0",
+            broker_url=CELERY_BROKER_URL, 
+            result_backend=CELERY_RESULT_BACKEND,
             task_ignore_result=True,
         ),
     )
