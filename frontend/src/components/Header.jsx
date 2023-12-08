@@ -1,6 +1,5 @@
 import { Howler } from "howler";
-import { FolderArchive, Repeat2 } from "lucide-react";
-import { useAudioZip } from "../hooks/useAudioZip";
+import { Repeat2 } from "lucide-react";
 import { useSamples } from "../hooks/useSamples";
 import { useStore } from "../store";
 import { cn } from "../utils";

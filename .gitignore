@@ -3,6 +3,8 @@ node_modules/
 .vite/
 .vscode/
 .env
+*.pyc
+
 # Logs
 logs
 *.log

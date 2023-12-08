@@ -1,17 +1,22 @@
 from pydub import AudioSegment, effects
+from celery.contrib.abortable import AbortableTask
+
 from yt_dlp import YoutubeDL
 import glob
 import os
 import random
 from collections import defaultdict
 import traceback
+from celery import shared_task
+import shutil
 
 BATCH_SIZE            = 24 # Batch size for user-generated word list samples
 DEFAULT_BATCH_SIZE    = 32 # Batch size for generating already generated samples
 MAX_SEARCH_RESULTS    = 9
-DOWNLOAD_DIR          = 'wavs/raw'
-LOOP_OUTPUT_DIR       = 'wavs/processed/loop'
-ONESHOT_OUTPUT_DIR    = 'wavs/processed/oneshot'
+OUTPUT_FORMAT         = 'wav'
+DOWNLOAD_DIR          = f'{OUTPUT_FORMAT}s/raw'
+LOOP_OUTPUT_DIR       = f'{OUTPUT_FORMAT}s/processed/loop'
+ONESHOT_OUTPUT_DIR    = f'{OUTPUT_FORMAT}s/processed/oneshot'
 WORD_LIST             = 'words.txt'
 DEFAULT_DIRECTORY     = 'default'
 
@@ -24,12 +29,14 @@ def read_lines(file):
 class download_range_func:
   def __init__(self):
     pass
+
   def __call__(self, info_dict, ydl):
     timestamp = self.make_timestamp(info_dict)
     yield {
         'start_time': timestamp,
         'end_time': timestamp,
     }
+  
   @staticmethod
   def make_timestamp(info):
       duration = info['duration']
@@ -37,31 +44,25 @@ class download_range_func:
         return 0
       return duration/2
 
-def make_random_search_phrase(word_list):
-  words = random.sample(word_list, 2)
-  phrase = ' '.join(words)
-  print('Search phrase: "{}"'.format(phrase))
-  return phrase
-
 class CustomLogger(object):
-    def debug(self, msg):
-        # Ignore debug output unless needed
-        pass
+  def debug(self, msg):
+      # Ignore debug output unless needed
+      pass
 
-    def warning(self, msg):
-        # Ignore warning output unless needed
-        pass
+  def warning(self, msg):
+      # Ignore warning output unless needed
+      pass
 
-    def error(self, msg):
-        print("[yt-dl]", msg)
+  def error(self, msg):
+      print("[yt-dl]", msg)
 
 def status_hook(d):
-    if d['status'] == 'downloading':
-        print('[yt-dl] Downloading ...', d['filename'])
-    if d['status'] == 'error':
-        print('[yt-dl] ERROR', d['filename'])
-    if d['status'] == 'finished':
-        print('[yt-dl] Done downloading, now converting', d['filename'])
+  if d['status'] == 'downloading':
+      print('[yt-dl] Downloading ...', d['filename'])
+  if d['status'] == 'error':
+      print('[yt-dl] ERROR', d['filename'])
+  if d['status'] == 'finished':
+      print('[yt-dl] Done downloading, now converting', d['filename'])
 
 def make_download_options(id):
   return {
@@ -76,7 +77,7 @@ def make_download_options(id):
     'maxdownloads': 5,
     'postprocessors': [{
         'key': 'FFmpegExtractAudio',
-        'preferredcodec': 'wav',
+        'preferredcodec': OUTPUT_FORMAT,
     }],
     'logger': CustomLogger(),
     'progress_hooks': [status_hook],
@@ -88,27 +89,27 @@ def make_oneshot(sound, output_filepath):
   sound   = sound[:final_length]
   sound   = sound.fade_out(duration=quarter)
   sound   = effects.normalize(sound)
-  sound.export(output_filepath, format="wav")
+  sound.export(output_filepath, format=OUTPUT_FORMAT)
 
 def make_loop(sound, output_filepath):
-    final_length = min(2000, len(sound))
-    half         = int(final_length/2)
-    fade_length  = int(final_length/3)
-    beg   = sound[:half]
-    end   = sound[half:]
-    end   = end[:fade_length]
-    beg   = beg.fade_in(duration=fade_length)
-    end   = end.fade_out(duration=fade_length)
-    sound = beg.overlay(end)
-    sound = effects.normalize(sound)
-    sound.export(output_filepath, format="wav")
+  final_length = min(2000, len(sound))
+  half         = int(final_length/2)
+  fade_length  = int(final_length/3)
+  beg   = sound[:half]
+  end   = sound[half:]
+  end   = end[:fade_length]
+  beg   = beg.fade_in(duration=fade_length)
+  end   = end.fade_out(duration=fade_length)
+  sound = beg.overlay(end)
+  sound = effects.normalize(sound)
+  sound.export(output_filepath, format=OUTPUT_FORMAT)
 
 def process_file(filepath, id):
   try:
     filename                = os.path.basename(filepath)
     output_filepath_oneshot = os.path.join(get_dir_with_id(ONESHOT_OUTPUT_DIR, id), 'oneshot_' + filename)
     output_filepath_loop    = os.path.join(get_dir_with_id(LOOP_OUTPUT_DIR, id), 'loop_' + filename)
-    sound                   = AudioSegment.from_file(filepath, "wav")
+    sound                   = AudioSegment.from_file(filepath, OUTPUT_FORMAT)
     if (len(sound) > 500):
       if not os.path.exists(output_filepath_oneshot):
         make_oneshot(sound, output_filepath_oneshot)
@@ -121,27 +122,34 @@ def process_file(filepath, id):
     print("failed to process '{}' ({})".format(filepath, err))
 
 def setup_dirs(id):
-      if not os.path.exists(get_dir_with_id(LOOP_OUTPUT_DIR, id)):
-        os.makedirs(get_dir_with_id(LOOP_OUTPUT_DIR, id))
-      if not os.path.exists(get_dir_with_id(ONESHOT_OUTPUT_DIR, id)):
-        os.makedirs(get_dir_with_id(ONESHOT_OUTPUT_DIR, id))
+  LOOP_ID_DIR = get_dir_with_id(LOOP_OUTPUT_DIR, id)
+  ONESHOT_ID_DIR = get_dir_with_id(ONESHOT_OUTPUT_DIR, id)
+  if not os.path.exists(LOOP_ID_DIR):
+    os.makedirs(LOOP_ID_DIR)
+  if not os.path.exists(ONESHOT_ID_DIR):
+    os.makedirs(ONESHOT_ID_DIR)
+  
+  if os.path.exists(LOOP_ID_DIR):
+    files = glob.glob(os.path.join(LOOP_ID_DIR, f"*.{OUTPUT_FORMAT}"))
+    if (files):
+      for f in files:
+        os.remove(f)
+      print("cleared loop files for", id, "".join(files))
 
-      if os.path.exists(get_dir_with_id(LOOP_OUTPUT_DIR, id)):
-        files = glob.glob(os.path.join(get_dir_with_id(LOOP_OUTPUT_DIR, id), "*.wav"))
-        if (files):
-          for f in files:
-            os.remove(f)
-          print("cleared loop files for", id, "".join(files))
-    
-      if os.path.exists(get_dir_with_id(ONESHOT_OUTPUT_DIR, id)):
-        files = glob.glob(os.path.join(get_dir_with_id(ONESHOT_OUTPUT_DIR, id), "*.wav"))
-        if (files):
-          for f in files:
-            os.remove(f)
-          print("cleared loop files for", id, "".join(files))
+  if os.path.exists(ONESHOT_ID_DIR):
+    files = glob.glob(os.path.join(ONESHOT_ID_DIR, f"*.{OUTPUT_FORMAT}"))
+    if (files):
+      for f in files:
+        os.remove(f)
+      print("cleared loop files for", id, "".join(files))
 
-def start_yt_dl(id: str, searched_phrases: [str], word_list: [str]) -> str:
-  phrase = make_random_search_phrase(word_list)
+def make_random_search_phrase(word_list):
+  words = random.sample(word_list, 2)
+  phrase = ' '.join(words)
+  print('Search phrase: "{}"'.format(phrase))
+  return phrase
+
+def start_yt_dl(id: str, searched_phrases: [str], phrase) -> str:
   video_url = 'ytsearch1:"{}"'.format(phrase)
   conflicts = defaultdict(list)
 
@@ -187,35 +195,68 @@ def handle_conflicting_phrase(phrase: str, conflicts: defaultdict[str, list]) ->
      return None
 
 def init_random_files():
-   files_in_loop_directory = glob.glob(os.path.join(get_dir_with_id(LOOP_OUTPUT_DIR, "default"), "*.wav"))
-   print("loaded files {}".format(files_in_loop_directory))
-   random_files = random.sample(files_in_loop_directory, DEFAULT_BATCH_SIZE)
-   print("> returning directories from", get_dir_with_id(LOOP_OUTPUT_DIR, "default"))
-   return [os.path.basename(i)[5:] for i in random_files]
+  files_in_loop_directory = glob.glob(os.path.join(get_dir_with_id(LOOP_OUTPUT_DIR, "default"), f"*.{OUTPUT_FORMAT}"))
+  print("loaded files {}".format(files_in_loop_directory))
+  random_files = random.sample(files_in_loop_directory, DEFAULT_BATCH_SIZE)
+  print("> returning directories from", get_dir_with_id(LOOP_OUTPUT_DIR, "default"))
+  return [os.path.basename(i)[5:] for i in random_files]
 
+def cleanup(id):
+  DOWNLOAD_PATH = get_dir_with_id(DOWNLOAD_DIR, id)
+  LOOP_PATH = get_dir_with_id(LOOP_OUTPUT_DIR, id)
+  ONESHOT_PATH = get_dir_with_id(ONESHOT_OUTPUT_DIR, id)
 
-def init(id, word_list):
-      try:
-        setup_dirs(id)
-        print("> loaded words list {}".format(", ".join(word_list)))
-        processed_files = []
-        searched_phrases = []
+  try:
+    print("removing temp download path...")
+    shutil.rmtree(DOWNLOAD_PATH)
+    print("removing loop path...")
+    shutil.rmtree(LOOP_PATH)
+    print("removing oneshot path...")
+    shutil.rmtree(ONESHOT_PATH)
+  except Exception as e:
+    print(f"failed to execute cleanup for task {id}: {e}")
 
-        for _ in range(BATCH_SIZE):
-            phrase = start_yt_dl(id, searched_phrases, word_list)
+@shared_task(ignore_result=False, bind=True, base=AbortableTask)
+def init(self, id, word_list):
+  try:
+    setup_dirs(id)
+    print("> loaded words list {}".format(", ".join(word_list)))
+    processed_files = []
+    searched_phrases = []
 
-            for filepath in glob.glob(os.path.join(get_dir_with_id(DOWNLOAD_DIR, id), '*.wav')):
-              if os.path.basename(filepath) not in processed_files:
-                processed_file_name = process_file(filepath, id)
-                if processed_file_name:
-                    processed_files.append(processed_file_name)
-                    searched_phrases.append(phrase)
-            
-        print("> processed files ", processed_files)
-        return processed_files
-      except Exception:
-        print("FATAL ERROR {}".format(traceback.format_exc()))
-        return []
+    for i in range(BATCH_SIZE):
+        print(f"Iteration {i} for {id}")
+        print("aborted?", self.is_aborted())
+
+        phrase = make_random_search_phrase(word_list)
+        self.update_state(state='PROGRESS',
+                          meta={'current': phrase,
+                                'total': BATCH_SIZE,
+                                'status': "Downloading file"})
+        phrase = start_yt_dl(id, searched_phrases, phrase)
+
+        for filepath in glob.glob(os.path.join(get_dir_with_id(DOWNLOAD_DIR, id), f'*.{OUTPUT_FORMAT}')):
+          if os.path.basename(filepath) not in processed_files:
+            self.update_state(state='PROGRESS',
+                              meta={'current': phrase,
+                                    'total': BATCH_SIZE,
+                                    'status': "Processing file"})
+            processed_file_name = process_file(filepath, id)
+            if processed_file_name:
+                processed_files.append(processed_file_name)
+                searched_phrases.append(phrase)
+
+        
+    print("> processed files ", processed_files)
+    return processed_files
+  except Exception:
+    print("FATAL ERROR {}".format(traceback.format_exc()))
+    self.update_state(state='FAILURE',
+                      meta='internal server error. check logs')
+    return []
+  finally:
+    print(f"cleaning up task {id}...")
+    cleanup(id)
       
 
 
