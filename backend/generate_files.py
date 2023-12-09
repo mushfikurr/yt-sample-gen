@@ -231,6 +231,7 @@ def init(self, id, word_list):
         phrase = make_random_search_phrase(word_list)
         self.update_state(state='PROGRESS',
                           meta={'current': phrase,
+                                'iteration': i,
                                 'total': BATCH_SIZE,
                                 'status': "Downloading file"})
         phrase = start_yt_dl(id, searched_phrases, phrase)
@@ -239,6 +240,7 @@ def init(self, id, word_list):
           if os.path.basename(filepath) not in processed_files:
             self.update_state(state='PROGRESS',
                               meta={'current': phrase,
+                                    'iteration': i,
                                     'total': BATCH_SIZE,
                                     'status': "Processing file"})
             processed_file_name = process_file(filepath, id)

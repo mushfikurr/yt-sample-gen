@@ -64,8 +64,9 @@ def task_result(id: str) -> dict[str, object]:
 @api.put("/cancel/<id>")
 def task_cancel(id: str):
     task = AbortableAsyncResult(id)
-    task.abort()
-    return {"message": "successfully revoked"}, 200
+    if task.state == 'PROGRESS':
+        task.revoke(terminate=True, signal="SIGKILL")
+        return {"message": "successfully revoked"}, 200
     
 @api.route('/generate-random', methods=["GET"])
 def generate_random():

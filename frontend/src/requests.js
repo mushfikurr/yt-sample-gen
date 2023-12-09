@@ -1,4 +1,5 @@
 import { ENDPOINT } from "./const";
+import { useStore } from "./store";
 
 const JSON_HEADERS = {
   "Content-Type": "application/json",
@@ -28,22 +29,47 @@ const handleDownload = async (targetUrl, targetFileName) => {
   }
 };
 
-export async function generateSamples(words = [], withId = false) {
-  let response = null;
-  if (withId) {
-    response = await fetch(ENDPOINT + "generate", {
-      headers: JSON_HEADERS,
-      method: "POST",
-      body: JSON.stringify({
-        uniqueId: localStorage.getItem("uniqueId"),
-        words,
-      }),
-    });
-  } else {
-    response = await fetch(ENDPOINT + "generate-random", {
-      headers: JSON_HEADERS,
-    });
+export async function fetchTaskId(words) {
+  const response = await fetch(ENDPOINT + "generate", {
+    method: "POST",
+    headers: JSON_HEADERS,
+    body: JSON.stringify({
+      uniqueId: localStorage.getItem("uniqueId"),
+      words,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(
+      error["message"] ?? "internal server error retrieving task id."
+    );
   }
+
+  const responseJson = await response.json();
+  return responseJson["task_id"];
+}
+
+export async function fetchTaskStatus(taskId) {
+  const response = await fetch(ENDPOINT + "result/" + taskId, {
+    headers: JSON_HEADERS,
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(
+      error["message"] ?? "internal server error retrieving task id."
+    );
+  }
+
+  const responseJson = await response.json();
+  return responseJson;
+}
+
+export async function generateRandomSamples() {
+  const response = await fetch(ENDPOINT + "generate-random", {
+    headers: JSON_HEADERS,
+  });
 
   if (!response.ok) {
     const error = await response.json();

@@ -1,8 +1,6 @@
-import { Howler } from "howler";
 import { Repeat2 } from "lucide-react";
-import { useSamples } from "../hooks/useSamples";
 import { useStore } from "../store";
-import { cn } from "../utils";
+import { GenerateSamplesButton } from "./GenerateSamplesButton";
 import { SearchTermsDialog } from "./SearchTermsDialog";
 import { TextButton } from "./TextButton";
 import { VolumeSlider } from "./VolumeSlider";
@@ -11,9 +9,8 @@ export function Header(props) {
   const looping = useStore((state) => state.looping);
   const toggleLooping = useStore((state) => state.toggleLooping);
   const currentSample = useStore((state) => state.currentSample);
-  const { refetch, isLoading, isRefetching } = useSamples();
+
   const generateLink = (id) => `https://www.youtube.com/watch?v=${id}`;
-  const loading = isLoading || isRefetching;
 
   return (
     <div className="items-stretch bg-zinc-950 flex w-full flex-col p-8 max-md:max-w-full max-md:px-5 sticky top-0 z-10">
@@ -70,28 +67,7 @@ export function Header(props) {
           <VolumeSlider />
         </div>
       </div>
-      <button
-        onClick={() => {
-          if (!loading) {
-            Howler.unload();
-            refetch();
-          }
-        }}
-        disabled={loading}
-        className={cn(
-          "text-zinc-300 hover:text-zinc-200 text-sm font-medium leading-6 whitespace-nowrap inline-flex justify-center items-center bg-zinc-900 border border-zinc-800 active:border-zinc-700 hover:bg-zinc-900/70 mt-8 px-7 py-5 rounded-md transition-colors duration-200 ease-in-out active:bg-zinc-900/50",
-          {
-            "bg-zinc-950 border border-zinc-800 hover:bg-zinc-950 active:bg-zinc-950":
-              loading,
-          }
-        )}
-      >
-        {isLoading || isRefetching ? (
-          <span className="text-zinc-500">generating...</span>
-        ) : (
-          "generate"
-        )}
-      </button>
+      <GenerateSamplesButton />
     </div>
   );
 }
