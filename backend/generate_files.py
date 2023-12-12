@@ -255,10 +255,9 @@ def init(self, id, word_list):
     print("FATAL ERROR {}".format(traceback.format_exc()))
     self.update_state(state='FAILURE',
                       meta='internal server error. check logs')
-    return []
-  finally:
     print(f"cleaning up task {id}...")
     cleanup(id)
+    return []
       
 
 

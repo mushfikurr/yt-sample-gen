@@ -7,13 +7,14 @@ import {
 import { useStore } from "../store";
 import { useState } from "react";
 
+const TASK_SUCCESS = "SUCCESS";
+const TASK_PENDING = "PENDING";
+const TASK_PROGRESS = "PROGRESS";
+
 export const useSamples = () => {
   const words = useStore((state) => state.words);
   const [taskQueueLoadingState, setTaskQueueLoadingState] = useState(false);
   const queryClient = useQueryClient();
-  const TASK_SUCCESS = "SUCCESS";
-  const TASK_PENDING = "PENDING";
-  const TASK_PROGRESS = "PROGRESS";
   const REFETCH_INTERVAL = 600;
   const RETRY_TIMES = 3;
 
@@ -31,24 +32,27 @@ export const useSamples = () => {
   const taskId = taskIdQuery?.data;
 
   const isTaskSuccessful = (data) => {
-    return data && data.successful ? true : false;
+    return data?.state === TASK_SUCCESS ? true : false;
   };
   const statusQuery = useQuery(
     ["samples", "status"],
     () => fetchTaskStatus(taskId),
     {
-      enabled: !!taskId,
+      enabled: !!taskId && taskQueueLoadingState,
       refetchInterval: (data) => {
-        isTaskSuccessful(data) ? REFETCH_INTERVAL : false;
+        return isTaskSuccessful(data) ? REFETCH_INTERVAL : false;
       },
       onSuccess: (data) => {
         if (isTaskSuccessful(data)) {
-          console.log(TASK_SUCCESS, data);
-          setTaskQueueLoadingState(false);
-        } else console.log(TASK_PROGRESS, data);
+          if (taskQueueLoadingState) {
+            console.log(TASK_SUCCESS, data ?? "no data");
+            setTaskQueueLoadingState(false);
+          }
+        }
       },
     }
   );
+
   const taskQueueErrors =
     unionAllErrors(taskIdQuery) || unionAllErrors(statusQuery);
   const taskQueueLoading =
@@ -65,15 +69,17 @@ export const useSamples = () => {
   const anyErrors = taskQueueErrors || randomSamplesError;
   const anyLoading = taskQueueLoading || randomSamplesLoading;
 
-  const processedFiles =
-    randomSamples?.data ||
-    (isTaskSuccessful(statusQuery?.data) && statusQuery?.data?.processed_files);
-  console.log(processedFiles);
+  const processedFilesWithWords =
+    isTaskSuccessful(statusQuery?.data) && statusQuery?.data?.processed_files;
+  const processedFiles = !words.length
+    ? randomSamples?.data
+    : processedFilesWithWords;
 
   const startFetchingSamples = () => {
     if (words.length) {
-      queryClient.invalidateQueries(["taskId"]);
-      queryClient.invalidateQueries([["samples", "status"]]);
+      console.log("there are words...");
+      queryClient.invalidateQueries("taskId");
+      queryClient.invalidateQueries(["samples", "status"]);
       taskIdQuery.refetch();
     } else {
       queryClient.invalidateQueries("samples");
