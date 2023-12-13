@@ -29,6 +29,11 @@ You will need some sort of message broker. For this project, I have decided to g
 
 **For Redis:**
 - Locate your connection address. It should look something like this `redis://:password@hostname:port/db_number`. If you are running the free tier, you can only use `0` for `db_number` as you only have access to one database. You can also configure other secure ways of connecting using the [Celery documentation](https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html).
+- Create a `config.py` in your `backend/` directory. It should define two constants: `CELERY_BROKER_URL` and `CELERY_RESULT_BACKEND`. For example:
+```
+CELERY_BROKER_URL = "redis://:password@hostname:port/0"
+CELERY_RESULT_BACKEND = "redis://:password@hostname:port/0"
+```
 
 **Running the backend:** You will require two terminals for this, one to run the Flask server and one to run the Celery worker. *In the future, I will explore ways to set up a concurrent way of running these together.*
 - In the **first terminal**, run `poetry shell` to enter the interactive poetry shell.
