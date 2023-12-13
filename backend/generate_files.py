@@ -9,6 +9,7 @@ from collections import defaultdict
 import traceback
 from celery import shared_task
 import shutil
+from logger import logger
 
 BATCH_SIZE            = 24 # Batch size for user-generated word list samples
 DEFAULT_BATCH_SIZE    = 32 # Batch size for generating already generated samples
@@ -54,15 +55,15 @@ class CustomLogger(object):
       pass
 
   def error(self, msg):
-      print("[yt-dl]", msg)
+      logger.error("[yt-dl]", msg)
 
 def status_hook(d):
   if d['status'] == 'downloading':
-      print('[yt-dl] Downloading ...', d['filename'])
+      logger.info('[yt-dl] Downloading ...', d['filename'])
   if d['status'] == 'error':
-      print('[yt-dl] ERROR', d['filename'])
+      logger.error('[yt-dl] ERROR', d['filename'])
   if d['status'] == 'finished':
-      print('[yt-dl] Done downloading, now converting', d['filename'])
+      logger.info('[yt-dl] Done downloading, now converting', d['filename'])
 
 def make_download_options(id):
   return {
@@ -116,10 +117,10 @@ def process_file(filepath, id):
       if not os.path.exists(output_filepath_loop):
         make_loop(sound, output_filepath_loop)
     os.remove(filepath)
-    print("processed and removed temp file '{}'".format(filepath))
+    logger.info("processed and removed temp file '{}'".format(filepath))
     return filename
   except Exception as err:
-    print("failed to process '{}' ({})".format(filepath, err))
+    logger.error("failed to process '{}' ({})".format(filepath, err))
 
 def setup_dirs(id):
   LOOP_ID_DIR = get_dir_with_id(LOOP_OUTPUT_DIR, id)
@@ -134,19 +135,19 @@ def setup_dirs(id):
     if (files):
       for f in files:
         os.remove(f)
-      print("cleared loop files for", id, "".join(files))
+      logger.info("cleared loop files for", id, "".join(files))
 
   if os.path.exists(ONESHOT_ID_DIR):
     files = glob.glob(os.path.join(ONESHOT_ID_DIR, f"*.{OUTPUT_FORMAT}"))
     if (files):
       for f in files:
         os.remove(f)
-      print("cleared loop files for", id, "".join(files))
+      logger.info("cleared loop files for", id, "".join(files))
 
 def make_random_search_phrase(word_list):
   words = random.sample(word_list, 2)
   phrase = ' '.join(words)
-  print('Search phrase: "{}"'.format(phrase))
+  logger.info('Search phrase: "{}"'.format(phrase))
   return phrase
 
 def start_yt_dl(id: str, searched_phrases: [str], phrase) -> str:
@@ -157,7 +158,7 @@ def start_yt_dl(id: str, searched_phrases: [str], phrase) -> str:
     new_webpage_url = handle_conflicting_phrase(phrase, conflicts)
             
     if new_webpage_url:
-      print("the conflicts now look like {}".format(conflicts))
+      logger.info("the conflicts now look like {}".format(conflicts))
       video_url = new_webpage_url
             
   YoutubeDL(make_download_options(id)).download([video_url])
@@ -170,7 +171,7 @@ def start_yt_dl(id: str, searched_phrases: [str], phrase) -> str:
 def handle_conflicting_phrase(phrase: str, conflicts: defaultdict[str, list]) -> str or None:
   MAX_SEARCH_RESULTS_FOR_CONFLICTS = 5 # TODO: Make this dynamic based on amount of words
 
-  print("> {} was already searched for, modifying url".format(phrase))
+  logger.info("> {} was already searched for, modifying url".format(phrase))
   try:
     search_results = YoutubeDL({'logger': CustomLogger()}).extract_info(
       url=f"ytsearch{MAX_SEARCH_RESULTS_FOR_CONFLICTS}:{phrase}",
@@ -183,22 +184,22 @@ def handle_conflicting_phrase(phrase: str, conflicts: defaultdict[str, list]) ->
     entry = entries[search_result_index]
     webpage_url = entry.get("webpage_url")
 
-    print("new url: {} (search result index: {})".format(webpage_url, search_result_index))
+    logger.info("new url: {} (search result index: {})".format(webpage_url, search_result_index))
     if entry:
       conflicts[phrase].append(search_result_index)
       return webpage_url
     else:
-      print("was not able to find alternative video. overwriting older file for {}".format(phrase))
+      logger.info("was not able to find alternative video. overwriting older file for {}".format(phrase))
       return None
   except Exception:
-     print("HANDLE CONFLICT ERROR: {}".format(traceback.format_exc()))
+     logger.error("HANDLE CONFLICT ERROR: {}".format(traceback.format_exc()))
      return None
 
 def init_random_files():
   files_in_loop_directory = glob.glob(os.path.join(get_dir_with_id(LOOP_OUTPUT_DIR, "default"), f"*.{OUTPUT_FORMAT}"))
-  print("loaded files {}".format(files_in_loop_directory))
+  logger.info("loaded files {}".format(files_in_loop_directory))
   random_files = random.sample(files_in_loop_directory, DEFAULT_BATCH_SIZE)
-  print("> returning directories from", get_dir_with_id(LOOP_OUTPUT_DIR, "default"))
+  logger.info("> returning directories from", get_dir_with_id(LOOP_OUTPUT_DIR, "default"))
   return [os.path.basename(i)[5:] for i in random_files]
 
 def cleanup(id):
@@ -207,26 +208,25 @@ def cleanup(id):
   ONESHOT_PATH = get_dir_with_id(ONESHOT_OUTPUT_DIR, id)
 
   try:
-    print("removing temp download path...")
+    logger.info("removing temp download path...")
     shutil.rmtree(DOWNLOAD_PATH)
-    print("removing loop path...")
+    logger.info("removing loop path...")
     shutil.rmtree(LOOP_PATH)
-    print("removing oneshot path...")
+    logger.info("removing oneshot path...")
     shutil.rmtree(ONESHOT_PATH)
   except Exception as e:
-    print(f"failed to execute cleanup for task {id}: {e}")
+    logger.error(f"failed to execute cleanup for task {id}: {e}")
 
 @shared_task(ignore_result=False, bind=True, base=AbortableTask)
 def init(self, id, word_list):
   try:
     setup_dirs(id)
-    print("> loaded words list {}".format(", ".join(word_list)))
+    logger.info("> loaded words list {}".format(", ".join(word_list)))
     processed_files = []
     searched_phrases = []
 
     for i in range(BATCH_SIZE):
-        print(f"Iteration {i} for {id}")
-        print("aborted?", self.is_aborted())
+        logger.info(f"Iteration {i} for {id}")
 
         phrase = make_random_search_phrase(word_list)
         self.update_state(state='PROGRESS',
@@ -249,13 +249,13 @@ def init(self, id, word_list):
                 searched_phrases.append(phrase)
 
         
-    print("> processed files ", processed_files)
+    logger.info("> processed files ", processed_files)
     return processed_files
   except Exception:
-    print("FATAL ERROR {}".format(traceback.format_exc()))
+    logger.error("FATAL ERROR {}".format(traceback.format_exc()))
     self.update_state(state='FAILURE',
                       meta='internal server error. check logs')
-    print(f"cleaning up task {id}...")
+    logger.info(f"cleaning up task {id}...")
     cleanup(id)
     return []
       

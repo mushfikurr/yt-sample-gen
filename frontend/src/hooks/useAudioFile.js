@@ -6,7 +6,7 @@ import { handleDownload } from "../utils";
 export const useAudioFile = (sampleFileName) => {
   const words = useStore((state) => state.words);
   const looping = useStore((state) => state.looping);
-  const getUniqueId = useStore((state) => state.uniqueId);
+  const getUniqueId = useStore((state) => state.getUniqueId);
 
   const uniqueId = words.length > 0 ? getUniqueId() : "default";
   const playbackType = looping ? "loops/" : "oneshot/";
