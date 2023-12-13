@@ -17,10 +17,10 @@ This was developed with music producers in mind, who are always searching for ne
 - [ ] General speed up of service.
 - [ ] Allow for cancelling tasks before completion.
 
-### Hosting locally for development
+## Hosting locally for development
 Clone repository to a directory. Inside the directories, there are both `frontend` and `backend` folders.
 
-#### Backend (Python: Flask, Celery)
+### Backend (Python: Flask, Celery)
 - Ensure you have [poetry](https://python-poetry.org/docs/#installing-with-pipx) installed on your machine.
 - Using the terminal, navigate to the backend directory (`cd yt-sample-gen/backend`).
 - Run `poetry install`. This should install all dependencies required.
@@ -29,6 +29,11 @@ You will need some sort of message broker. For this project, I have decided to g
 
 **For Redis:**
 - Locate your connection address. It should look something like this `redis://:password@hostname:port/db_number`. If you are running the free tier, you can only use `0` for `db_number` as you only have access to one database. You can also configure other secure ways of connecting using the [Celery documentation](https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html).
+- Create a `config.py` in your `backend/` directory. It should define two constants: `CELERY_BROKER_URL` and `CELERY_RESULT_BACKEND`. For example:
+```
+CELERY_BROKER_URL = "redis://:password@hostname:port/0"
+CELERY_RESULT_BACKEND = "redis://:password@hostname:port/0"
+```
 
 **Running the backend:** You will require two terminals for this, one to run the Flask server and one to run the Celery worker. *In the future, I will explore ways to set up a concurrent way of running these together.*
 - In the **first terminal**, run `poetry shell` to enter the interactive poetry shell.
@@ -39,7 +44,7 @@ You will need some sort of message broker. For this project, I have decided to g
 
 With these two terminals, you should be able to receive HTTP requests. All the endpoints can be found in `backend/routes.py`.
 
-#### Frontend (Vite: React)
+### Frontend (Vite: React)
 - Ensure you have [node](https://nodejs.org/en/download/current) installed on your machine.
 - Ideally, you should have set up the backend section first, and have the two terminals running. We now need another terminal to run the frontend.
 - Using the terminal, navigate to the frontend directory (`cd yt-sample-gen/frontend`).
@@ -50,7 +55,3 @@ With these two terminals, you should be able to receive HTTP requests. All the e
 
 ##### Extra notes:
 Thanks to [@ColugoMusic](https://x.com/ColugoMusic/status/1726001266180956440?s=20) for the inspiration.
-
-
-
-
