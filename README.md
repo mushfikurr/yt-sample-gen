@@ -3,6 +3,8 @@
 
 This was developed with music producers in mind, who are always searching for new and interesting sounds to use in their production.
 
+![Generating a random sample by default list of words](https://github.com/mushfikurr/yt-sample-gen/blob/main/gif/sample-use-1.gif)
+
 #### Features
 - Download/listen to samples being generated.
 - Allow custom words to refine the sounds being searched for.
