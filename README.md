@@ -16,8 +16,9 @@ This was developed with music producers in mind, who are always searching for ne
 	- Choose from more fractional lengths of video.
 	- Use more search results in a generation (currently only the first search result unless there is a conflict of phrases).
 - [ ] Allow for "sticky" phrases (append chosen words to all phrases).
-- [ ] General speed up of service.
+- [ ] General speed up of server.
 - [ ] Allow for cancelling tasks before completion.
+- [ ] Move to Docker container.
 
 ## Hosting locally for development
 Clone repository to a directory. Inside the directories, there are both `frontend` and `backend` folders.
