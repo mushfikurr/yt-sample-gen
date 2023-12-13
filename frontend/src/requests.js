@@ -28,12 +28,12 @@ const handleDownload = async (targetUrl, targetFileName) => {
   }
 };
 
-export async function fetchTaskId(words) {
+export async function fetchTaskId(words, uniqueId) {
   const response = await fetch(ENDPOINT + "generate", {
     method: "POST",
     headers: JSON_HEADERS,
     body: JSON.stringify({
-      uniqueId: localStorage.getItem("uniqueId"),
+      uniqueId,
       words,
     }),
   });

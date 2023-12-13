@@ -28,3 +28,14 @@ export const handleDownload = async (targetUrl, targetFileName = "") => {
     throw new Error(error);
   }
 };
+
+export function isLocalStorageAvailable() {
+  var test = "test";
+  try {
+    localStorage.setItem(test, test);
+    localStorage.removeItem(test);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}

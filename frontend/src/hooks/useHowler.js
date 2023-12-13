@@ -5,8 +5,8 @@ import { ENDPOINT } from "../const";
 
 export const useHowler = (currentSample, shouldPlay = false) => {
   const words = useStore((state) => state.words);
-  const uniqueId =
-    words.length > 0 ? localStorage.getItem("uniqueId") : "default";
+  const getUniqueId = useStore((state) => state.getUniqueId);
+  const uniqueId = words.length > 0 ? getUniqueId() : "default";
   const looping = useStore((state) => state.looping);
   const setCurrentSample = useStore((state) => state.setCurrentSample);
 

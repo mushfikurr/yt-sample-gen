@@ -14,18 +14,23 @@ const TASK_PROGRESS = "PROGRESS";
 
 export const useSamples = () => {
   const words = useStore((state) => state.words);
+  const getUniqueId = useStore((state) => state.getUniqueId);
   const [taskQueueLoadingState, setTaskQueueLoadingState] = useState(false);
   const queryClient = useQueryClient();
   const REFETCH_INTERVAL = 600;
   const RETRY_TIMES = 3;
 
   const unionAllErrors = (query) => query?.error;
-  const taskIdQuery = useQuery("taskId", () => fetchTaskId(words), {
-    enabled: false,
-    retry: RETRY_TIMES,
-    onSuccess: () => setTaskQueueLoadingState(true),
-    onError: () => setTaskQueueLoadingState(false),
-  });
+  const taskIdQuery = useQuery(
+    "taskId",
+    () => fetchTaskId(words, getUniqueId()),
+    {
+      enabled: false,
+      retry: RETRY_TIMES,
+      onSuccess: () => setTaskQueueLoadingState(true),
+      onError: () => setTaskQueueLoadingState(false),
+    }
+  );
   const taskId = taskIdQuery?.data;
 
   const isTaskSuccessful = (data) =>
