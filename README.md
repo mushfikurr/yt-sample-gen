@@ -3,7 +3,7 @@
 
 This was developed with music producers in mind, who are always searching for new and interesting sounds to use in their production.
 
-![Generating a random sample by default list of words](https://github.com/Voyz/voyz_public/blob/master/databay_promo_vidA_gif_A03.gif)
+![Generating a random sample by default list of words](https://github.com/mushfikurr/yt-sample-gen/blob/main/gif/sample-use-1.gif)
 
 #### Features
 - Download/listen to samples being generated.
