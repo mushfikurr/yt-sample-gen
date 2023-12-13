@@ -17,10 +17,10 @@ This was developed with music producers in mind, who are always searching for ne
 - [ ] General speed up of service.
 - [ ] Allow for cancelling tasks before completion.
 
-### Hosting locally for development
+## Hosting locally for development
 Clone repository to a directory. Inside the directories, there are both `frontend` and `backend` folders.
 
-#### Backend (Python: Flask, Celery)
+### Backend (Python: Flask, Celery)
 - Ensure you have [poetry](https://python-poetry.org/docs/#installing-with-pipx) installed on your machine.
 - Using the terminal, navigate to the backend directory (`cd yt-sample-gen/backend`).
 - Run `poetry install`. This should install all dependencies required.
@@ -39,7 +39,7 @@ You will need some sort of message broker. For this project, I have decided to g
 
 With these two terminals, you should be able to receive HTTP requests. All the endpoints can be found in `backend/routes.py`.
 
-#### Frontend (Vite: React)
+### Frontend (Vite: React)
 - Ensure you have [node](https://nodejs.org/en/download/current) installed on your machine.
 - Ideally, you should have set up the backend section first, and have the two terminals running. We now need another terminal to run the frontend.
 - Using the terminal, navigate to the frontend directory (`cd yt-sample-gen/frontend`).
@@ -50,7 +50,3 @@ With these two terminals, you should be able to receive HTTP requests. All the e
 
 ##### Extra notes:
 Thanks to [@ColugoMusic](https://x.com/ColugoMusic/status/1726001266180956440?s=20) for the inspiration.
-
-
-
-
