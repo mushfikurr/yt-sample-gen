@@ -5,7 +5,7 @@ import { SearchTermsDialog } from "./SearchTermsDialog";
 import { TextButton } from "./TextButton";
 import { VolumeSlider } from "./VolumeSlider";
 
-export function Header(props) {
+export function Header() {
   const looping = useStore((state) => state.looping);
   const toggleLooping = useStore((state) => state.toggleLooping);
   const currentSample = useStore((state) => state.currentSample);

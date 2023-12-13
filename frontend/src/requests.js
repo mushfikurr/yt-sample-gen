@@ -1,5 +1,4 @@
 import { ENDPOINT } from "./const";
-import { useStore } from "./store";
 
 const JSON_HEADERS = {
   "Content-Type": "application/json",
@@ -59,6 +58,23 @@ export async function fetchTaskStatus(taskId) {
     const error = await response.json();
     throw new Error(
       error["message"] ?? "internal server error retrieving task id."
+    );
+  }
+
+  const responseJson = await response.json();
+  return responseJson;
+}
+
+export async function cancelTask(taskId) {
+  const response = await fetch(ENDPOINT + "cancel/" + taskId, {
+    method: "PUT",
+    headers: JSON_HEADERS,
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(
+      error["message"] ?? "internal server error cancelling task id."
     );
   }
 

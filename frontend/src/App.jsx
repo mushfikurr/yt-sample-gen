@@ -1,10 +1,8 @@
 import { QueryClient, QueryClientProvider } from "react-query";
 import "./App.css";
-import { CustomSampleView } from "./components/CustomSampleView";
 import { Header } from "./components/Header";
-import { RandomSampleView } from "./components/RandomSampleView";
-import { useStore } from "./store";
 import { SampleView } from "./components/SampleView";
+import { useStore } from "./store";
 
 const queryClient = new QueryClient();
 

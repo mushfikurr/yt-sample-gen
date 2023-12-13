@@ -31,11 +31,12 @@ export function SearchTermsDialog() {
     }
     setWordsInput(e.target.value);
   };
+  const searchTermsTitle = words.length ? "(words)" : "(no words)";
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
       <Dialog.Trigger asChild>
-        <TextButton title="search terms" Icon={Search} />
+        <TextButton title={`search terms ${searchTermsTitle}`} Icon={Search} />
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-20 bg-black/10 backdrop-blur-sm" />

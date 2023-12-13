@@ -1,5 +1,6 @@
-import { useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
+  cancelTask,
   fetchTaskId,
   fetchTaskStatus,
   generateRandomSamples,
@@ -18,40 +19,41 @@ export const useSamples = () => {
   const REFETCH_INTERVAL = 600;
   const RETRY_TIMES = 3;
 
-  const unionAllErrors = (query) => {
-    return query?.error;
-  };
-
+  const unionAllErrors = (query) => query?.error;
   const taskIdQuery = useQuery("taskId", () => fetchTaskId(words), {
     enabled: false,
     retry: RETRY_TIMES,
-    onSuccess: () => {
-      setTaskQueueLoadingState(true);
-    },
+    onSuccess: () => setTaskQueueLoadingState(true),
+    onError: () => setTaskQueueLoadingState(false),
   });
   const taskId = taskIdQuery?.data;
 
-  const isTaskSuccessful = (data) => {
-    return data?.state === TASK_SUCCESS ? true : false;
-  };
+  const isTaskSuccessful = (data) =>
+    data?.state === TASK_SUCCESS ? true : false;
+
   const statusQuery = useQuery(
     ["samples", "status"],
     () => fetchTaskStatus(taskId),
     {
       enabled: !!taskId && taskQueueLoadingState,
-      refetchInterval: (data) => {
-        return isTaskSuccessful(data) ? REFETCH_INTERVAL : false;
-      },
+      refetchInterval: (data) =>
+        isTaskSuccessful(data) && taskQueueLoadingState
+          ? REFETCH_INTERVAL
+          : false,
       onSuccess: (data) => {
-        if (isTaskSuccessful(data)) {
-          if (taskQueueLoadingState) {
-            console.log(TASK_SUCCESS, data ?? "no data");
-            setTaskQueueLoadingState(false);
-          }
-        }
+        if (isTaskSuccessful(data) && taskQueueLoadingState)
+          setTaskQueueLoadingState(false);
       },
     }
   );
+
+  const cancelTaskMutation = useMutation(cancelTask, {
+    onSuccess: () => {
+      setTaskQueueLoadingState(false);
+      queryClient.resetQueries("taskId");
+      queryClient.resetQueries(["samples", "status"]);
+    },
+  });
 
   const taskQueueErrors =
     unionAllErrors(taskIdQuery) || unionAllErrors(statusQuery);
@@ -87,9 +89,16 @@ export const useSamples = () => {
     }
   };
 
+  const cancelCurrentTask = () => {
+    if (anyLoading && taskId && !anyErrors) {
+      cancelTaskMutation.mutate(taskId);
+    }
+  };
+
   return {
     taskIdQuery,
     statusQuery,
+    cancelCurrentTask,
     startFetchingSamples,
     anyErrors,
     anyLoading,

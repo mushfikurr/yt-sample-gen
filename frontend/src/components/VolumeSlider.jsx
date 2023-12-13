@@ -1,13 +1,11 @@
 import * as Slider from "@radix-ui/react-slider";
-import { Volume2 } from "lucide-react";
-import { cn } from "../utils";
 import { Howler } from "howler";
-import { useState, useEffect } from "react";
+import { Volume2 } from "lucide-react";
+import { useState } from "react";
+import { cn } from "../utils";
 
 export function VolumeSlider() {
   const [volume, setVolume] = useState([0.5]);
-
-  useEffect(() => {}, [Howler.volume()]);
 
   return (
     <div className="group inline-flex gap-2">
