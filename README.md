@@ -1,5 +1,5 @@
 # yt-sample-gen
-`yt-sample-gen` is a web application allowing users to generate 10-second audio clips from random YouTube videos.
+`yt-sample-gen` is a sampler allowing producers to generate 10-second audio snippets from the best library out there: YouTube!
 
 This was developed with music producers in mind, who are always searching for new and interesting sounds to use in their production.
 
